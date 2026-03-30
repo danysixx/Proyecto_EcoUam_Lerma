@@ -1,5 +1,21 @@
-# Configuración de la página
 import streamlit as st
+
+# =========================
+# CONFIG HÍBRIDA (LOCAL + CLOUD)
+# =========================
+
+try:
+    # 🌐 Streamlit Cloud
+    ODK_URL = st.secrets["ODK_URL"]
+    PROJECT_ID = st.secrets["PROJECT_ID"]
+    FORM_ID = st.secrets["FORM_ID"]
+    USERNAME = st.secrets["USERNAME"]
+    PASSWORD = st.secrets["PASSWORD"]
+
+except Exception:
+    # 💻 Local
+    from config import ODK_URL, PROJECT_ID, FORM_ID, USERNAME, PASSWORD
+    
 st.set_page_config(page_title="Dashboard Encuestas", layout="wide")
 
 import plotly.express as px
