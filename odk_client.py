@@ -5,8 +5,24 @@
 import requests
 import pandas as pd
 from requests.auth import HTTPBasicAuth
-from config import *
 
+import streamlit as st
+
+# =========================
+# CONFIG HÍBRIDA (LOCAL + CLOUD)
+# =========================
+
+try:
+    # 🌐 Streamlit Cloud
+    ODK_URL = st.secrets["ODK_URL"]
+    PROJECT_ID = st.secrets["PROJECT_ID"]
+    FORM_ID = st.secrets["FORM_ID"]
+    USERNAME = st.secrets["USERNAME"]
+    PASSWORD = st.secrets["PASSWORD"]
+
+except Exception:
+    # 💻 Local
+    from config import ODK_URL, PROJECT_ID, FORM_ID, USERNAME, PASSWORD
 
 def flatten_json(data, parent_key=''):
     """
