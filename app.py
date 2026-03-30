@@ -6,7 +6,7 @@ import plotly.express as px
 import pandas as pd
 from odk_client import obtener_submissions
 from ai_analysis import generar_insights, filtrar_columnas_relevantes
-from column_mapping import COLUMN_MAPPING
+from column_mapping import COLUMN_MAPPING, COLUMN_LABELS
 
 
 # =========================
@@ -51,24 +51,80 @@ if df.empty:
 
 
 # =========================
-# MÉTRICAS
+# KPIs (PRO)
 # =========================
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
+
+
+def calcular_porcentaje_si(df, columna):
+    if columna not in df.columns:
+        return None
+
+    serie = df[columna].astype(str)
+    serie = serie[~serie.isin(["Sin dato", "nan", "None", ""])]
+
+    if len(serie) < max(3, int(len(df) * 0.2)):
+        return None
+
+    si = serie.str.lower().str.contains("si|sí").sum()
+    return int((si / len(serie)) * 100)
+
+
+# Edad promedio
+cols_edad = [c for c in df.columns if "Edad" in c]
+edad = df[cols_edad].bfill(axis=1).iloc[:, 0] if cols_edad else None
+edad = pd.to_numeric(edad, errors="coerce").dropna() if edad is not None else []
+edad_prom = int(edad.mean()) if len(edad) > 0 else "N/A"
+
+
+# =========================
+# KPIs DINÁMICOS
+# =========================
+
+kpi_1 = None
+kpi_2 = None
+label_1 = ""
+label_2 = ""
+
+preguntas_kpi = [
+    "¿Conoces el concepto de GIRS?",
+    "¿Sabes qué son los lixiviados y cómo afectan el agua?",
+    "¿Qué tan grave es el problema de la basura?",
+    "¿Cómo percibes el estado del Río Lerma?",
+]
+
+for pregunta in preguntas_kpi:
+    valor = calcular_porcentaje_si(df, pregunta)
+
+    if valor is not None:
+
+        if kpi_1 is None:
+            kpi_1 = valor
+            label_1 = COLUMN_LABELS.get(pregunta, pregunta)
+
+        elif kpi_2 is None:
+            kpi_2 = valor
+            label_2 = COLUMN_LABELS.get(pregunta, pregunta)
+            break
+
+
+# =========================
+# RENDER KPIs
+# =========================
 
 col1.metric("Total encuestas", len(df))
-col2.metric("Última actualización", ultima_actualizacion)
-col3.metric("Sectores", df["Sector"].nunique())
+col2.metric("Edad promedio", edad_prom)
 
+if kpi_1 is not None:
+    col3.metric(label_1, f"{kpi_1}%")
+else:
+    col3.metric("Indicador 1", "N/A")
 
-# =========================
-# TABLA DE DATOS
-# =========================
-
-st.markdown("---")
-st.subheader("Datos de la encuesta")
-
-st.dataframe(df, use_container_width=True)
+if kpi_2 is not None:
+    col4.metric(label_2, f"{kpi_2}%")  # 🔥 corregido (antes tenías kpi_1)
+else:
+    col4.metric("Indicador 2", "N/A")
 
 st.markdown("---")
 
@@ -92,7 +148,7 @@ def limpiar_serie(serie):
 
 
 # =========================
-# FUNCIÓN INTELIGENTE
+# FUNCIÓN GRÁFICAS (AQUÍ ESTÁ EL CAMBIO CLAVE 🔥)
 # =========================
 
 def graficar_por_sector(df_seccion, keyword, titulo):
@@ -108,18 +164,18 @@ def graficar_por_sector(df_seccion, keyword, titulo):
 
     for col in df_seccion.columns:
 
-        # ❌ eliminar metadatos
+        if col == "Sector":
+            continue
+
         if col.startswith("_") or col.startswith("__"):
             continue
 
         if "submitter" in col.lower() or "system" in col.lower():
             continue
 
-        # filtro por sector
         if keyword and keyword not in col:
             continue
 
-        # evitar ruido
         if "Edad" in col or "Sexo" in col or "Fecha" in col:
             continue
 
@@ -137,17 +193,27 @@ def graficar_por_sector(df_seccion, keyword, titulo):
         if len(conteo) > 10:
             continue
 
+        # 🔥 AQUÍ USAS LOS LABELS
+        titulo_grafica = COLUMN_LABELS.get(col, col)
+
         if len(conteo) <= 3:
-            fig = px.pie(conteo, names=col, values="conteo", title=col[:40], hole=0.5)
+            fig = px.pie(
+                conteo,
+                names=col,
+                values="conteo",
+                title=titulo_grafica,
+                hole=0.5
+            )
         else:
-            fig = px.bar(conteo, x=col, y="conteo", title=col[:40])
+            fig = px.bar(
+                conteo,
+                x=col,
+                y="conteo",
+                title=titulo_grafica
+            )
 
         with cols[i % 3]:
-            st.plotly_chart(
-                fig,
-                use_container_width=True,
-                key=f"{titulo}_{col}_{i}"
-            )
+            st.plotly_chart(fig, use_container_width=True, key=f"{titulo}_{col}_{i}")
 
         i += 1
 
@@ -165,94 +231,37 @@ with tab_general:
 
     col1, col2, col3 = st.columns(3)
 
-    # =========================
-    # SECTOR
-    # =========================
-
     with col1:
-
         sector = df["Sector"].dropna()
-
         if not sector.empty:
-
             conteo = sector.value_counts().reset_index()
             conteo.columns = ["Sector", "conteo"]
-
-            fig = px.pie(
-                conteo,
-                names="Sector",
-                values="conteo",
-                title="Sector",
-                hole=0.5
-            )
-
-            st.plotly_chart(fig, use_container_width=True, key="sector_general")
-
-    # =========================
-    # EDAD (LIMPIA)
-    # =========================
+            fig = px.pie(conteo, names="Sector", values="conteo", title="Sector", hole=0.5)
+            st.plotly_chart(fig, use_container_width=True, key="sector")
 
     with col2:
-
-        cols_edad = [c for c in df.columns if "Edad" in c]
-
         if cols_edad:
-
             edad = df[cols_edad].bfill(axis=1).iloc[:, 0]
-            edad = pd.to_numeric(edad, errors="coerce")
-            edad = edad.dropna()
-
+            edad = pd.to_numeric(edad, errors="coerce").dropna()
             if not edad.empty:
-
                 conteo = edad.value_counts().sort_index().reset_index()
                 conteo.columns = ["Edad", "conteo"]
-
-                fig = px.pie(
-                    conteo,
-                    names="Edad",
-                    values="conteo",
-                    title="Edad",
-                    hole=0.5
-                )
-
-                st.plotly_chart(fig, use_container_width=True, key="edad_general")
-
-    # =========================
-    # SEXO (LIMPIO)
-    # =========================
+                fig = px.pie(conteo, names="Edad", values="conteo", title="Edad", hole=0.5)
+                st.plotly_chart(fig, use_container_width=True, key="edad")
 
     with col3:
-
         cols_sexo = [c for c in df.columns if "Sexo" in c]
-
         if cols_sexo:
-
             sexo = df[cols_sexo].bfill(axis=1).iloc[:, 0]
             sexo = sexo.astype(str)
             sexo = sexo[~sexo.isin(["None", "nan", ""])]
-            sexo = sexo.dropna()
-
             if not sexo.empty:
-
                 conteo = sexo.value_counts().reset_index()
                 conteo.columns = ["Sexo", "conteo"]
-
-                fig = px.pie(
-                    conteo,
-                    names="Sexo",
-                    values="conteo",
-                    title="Sexo",
-                    hole=0.5
-                )
-
-                st.plotly_chart(fig, use_container_width=True, key="sexo_general")
-
-    # =========================
-    # RESTO DEL DASHBOARD
-    # =========================
+                fig = px.pie(conteo, names="Sexo", values="conteo", title="Sexo", hole=0.5)
+                st.plotly_chart(fig, use_container_width=True, key="sexo")
 
     st.markdown("---")
-
     graficar_por_sector(df, "", "General")
 
 
@@ -294,9 +303,26 @@ with tab_publico:
 # =========================
 
 st.markdown("---")
-st.subheader("Insights automáticos")
+st.subheader("Principales hallazgos")
 
 insights = generar_insights(df)
 
 for i in insights[:5]:
-    st.markdown(f"- {i}")
+    st.info(i)
+
+
+# =========================
+# CONCLUSIÓN
+# =========================
+
+st.markdown("### Conclusión general")
+
+st.success("""
+Se identifican áreas de oportunidad en educación ambiental, especialmente en la separación de residuos y conocimiento práctico del reciclaje.
+El dashboard permite visualizar patrones clave para la toma de decisiones.
+""")
+
+st.markdown("---")
+st.subheader("Datos completos")
+
+st.dataframe(df, use_container_width=True)
