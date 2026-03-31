@@ -219,9 +219,9 @@ st.markdown("---")
 # TABS
 # =========================
 
-tab_general, tab_primaria, tab_secundaria, tab_prepa, tab_hogar, tab_publico = st.tabs([
-    "General", "Primaria", "Secundaria", "Prepa/Uni", "Hogar", "Público"
-])
+# tab_general, tab_primaria, tab_secundaria, tab_prepa, tab_hogar, tab_publico = st.tabs([
+#     "General", "Primaria", "Secundaria", "Prepa/Uni", "Hogar", "Público"
+# ])
 
 
 # =========================
@@ -308,16 +308,15 @@ def graficar_por_sector(df_seccion, keyword, titulo):
 
 
 # =========================
-# GENERAL
+# GENERAL (SIN TABS)
 # =========================
 
-with tab_general:
+st.markdown("## 📊 Análisis general")
+#st.markdown("### Distribución general")
 
-    st.markdown("### Distribución general")
+col1, col2, col3 = st.columns(3)
 
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
+with col1:
         sector = df["Sector"].dropna()
         if not sector.empty:
             conteo = sector.value_counts().reset_index()
@@ -325,7 +324,7 @@ with tab_general:
             fig = px.pie(conteo, names="Sector", values="conteo", title="Sector", hole=0.5)
             st.plotly_chart(fig, use_container_width=True, key="sector")
 
-    with col2:
+with col2:
         if cols_edad:
             edad = df[cols_edad].bfill(axis=1).iloc[:, 0]
             edad = pd.to_numeric(edad, errors="coerce").dropna()
@@ -335,7 +334,7 @@ with tab_general:
                 fig = px.pie(conteo, names="Edad", values="conteo", title="Edad", hole=0.5)
                 st.plotly_chart(fig, use_container_width=True, key="edad")
 
-    with col3:
+with col3:
         cols_sexo = [c for c in df.columns if "Sexo" in c]
         if cols_sexo:
             sexo = df[cols_sexo].bfill(axis=1).iloc[:, 0]
@@ -347,8 +346,8 @@ with tab_general:
                 fig = px.pie(conteo, names="Sexo", values="conteo", title="Sexo", hole=0.5)
                 st.plotly_chart(fig, use_container_width=True, key="sexo")
 
-    st.markdown("---")
-    graficar_por_sector(df, "", "General")
+st.markdown("---")
+graficar_por_sector(df, "", "Resultados")
 
 
 # =========================
@@ -368,20 +367,20 @@ df_publico = df[df["Sector"].str.lower().str.strip() == "publico"]
 # TABS POR SECTOR
 # =========================
 
-with tab_primaria:
-    graficar_por_sector(df_primaria, "Primaria", "Primaria")
+# with tab_primaria:
+#     graficar_por_sector(df_primaria, "Primaria", "Primaria")
 
-with tab_secundaria:
-    graficar_por_sector(df_secundaria, "Secundaria", "Secundaria")
+# with tab_secundaria:
+#     graficar_por_sector(df_secundaria, "Secundaria", "Secundaria")
 
-with tab_prepa:
-    graficar_por_sector(df_prepa, "Nivel educativo", "Prepa / Universidad")
+# with tab_prepa:
+#     graficar_por_sector(df_prepa, "Nivel educativo", "Prepa / Universidad")
 
-with tab_hogar:
-    graficar_por_sector(df_hogar, "Hogar", "Hogar")
+# with tab_hogar:
+#     graficar_por_sector(df_hogar, "Hogar", "Hogar")
 
-with tab_publico:
-    graficar_por_sector(df_publico, "Público", "Público")
+# with tab_publico:
+#     graficar_por_sector(df_publico, "Público", "Público")
 
 
 # =========================
