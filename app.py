@@ -66,9 +66,6 @@ if df.empty:
     st.stop()
 
 
-# Mapping
-df = df.rename(columns=COLUMN_MAPPING)
-
 # =========================
 # 🔥 EXCLUSIÓN DE COLUMNAS
 # =========================
@@ -114,6 +111,9 @@ EXCLUDE_COLUMNS = [
 
     #Carrera
     "Carrera",
+
+    #salud
+    "¿La contaminación afecta la salud?",
     
 ]
 
@@ -132,11 +132,8 @@ df = df[columnas_validas]
 
 
 # =========================
-# KPIs (PRO)
+# KPIs (MEJOR DISTRIBUCIÓN)
 # =========================
-
-col1, col2, col3, col4 = st.columns(4)
-
 
 def calcular_porcentaje_si(df, columna):
     if columna not in df.columns:
@@ -159,10 +156,7 @@ edad = pd.to_numeric(edad, errors="coerce").dropna() if edad is not None else []
 edad_prom = int(edad.mean()) if len(edad) > 0 else "N/A"
 
 
-# =========================
-# KPIs DINÁMICOS
-# =========================
-
+# KPIs dinámicos
 kpi_1 = None
 kpi_2 = None
 label_1 = ""
@@ -179,33 +173,44 @@ for pregunta in preguntas_kpi:
     valor = calcular_porcentaje_si(df, pregunta)
 
     if valor is not None:
-
         if kpi_1 is None:
             kpi_1 = valor
             label_1 = COLUMN_LABELS.get(pregunta, pregunta)
-
         elif kpi_2 is None:
             kpi_2 = valor
             label_2 = COLUMN_LABELS.get(pregunta, pregunta)
             break
 
 
+# Estado API
+estado_api = "🟢 Conectado" if not df.empty else "🔴 Sin conexión"
+
+
 # =========================
-# RENDER KPIs
+# 🔥 RENDER KPIs EN 2 FILAS
 # =========================
+
+# 🔹 FILA 1
+col1, col2, col3 = st.columns(3)
 
 col1.metric("Total encuestas", len(df))
 col2.metric("Edad promedio", edad_prom)
+col3.metric("Estado API", estado_api)
+
+# 🔹 FILA 2
+col4, col5, col6 = st.columns(3)
+
+col4.metric("Última actualización", ultima_actualizacion)
 
 if kpi_1 is not None:
-    col3.metric(label_1, f"{kpi_1}%")
+    col5.metric(label_1, f"{kpi_1}%")
 else:
-    col3.metric("Indicador 1", "N/A")
+    col5.metric("Indicador 1", "N/A")
 
 if kpi_2 is not None:
-    col4.metric(label_2, f"{kpi_2}%")  # 🔥 corregido (antes tenías kpi_1)
+    col6.metric(label_2, f"{kpi_2}%")
 else:
-    col4.metric("Indicador 2", "N/A")
+    col6.metric("Indicador 2", "N/A")
 
 st.markdown("---")
 
@@ -386,12 +391,59 @@ with tab_publico:
 st.markdown("---")
 st.subheader("Principales hallazgos")
 
-insights = generar_insights(df)
 
-for i in insights[:5]:
+# =========================
+# 🔥 DATA LIMPIA PARA IA
+# =========================
+
+df_insights = df.copy()
+
+EXCLUDE_INSIGHTS = [
+    "start",
+    "Fecha",
+    "Edad",
+    "Edad (Primaria)",
+    "Edad (Secundaria)",
+    "Edad (Hogar)",
+    "Edad (Público)",
+    "Sexo",
+    "Sector"
+]
+
+# eliminar columnas no útiles
+df_insights = df_insights.drop(columns=[
+    col for col in EXCLUDE_INSIGHTS if col in df_insights.columns
+])
+
+# eliminar columnas con puro "Sin dato"
+df_insights = df_insights.loc[:, ~(df_insights == "Sin dato").all()]
+
+# eliminar columnas con una sola categoría
+df_insights = df_insights.loc[:, df_insights.nunique() > 1]
+
+# 🔥 ahora sí IA limpia
+insights = generar_insights(df_insights)
+
+# =========================
+# 🔥 FILTRO DE INSIGHTS (AQUÍ VA EL CAMBIO)
+# =========================
+
+INSIGHTS_NO_DESEADOS = [
+    "sin información",
+    "sin dato",
+    "registros sin",
+    "nan",
+    "total de registros"
+]
+
+insights_filtrados = [
+    i for i in insights
+    if not any(palabra in i.lower() for palabra in INSIGHTS_NO_DESEADOS)
+]
+
+# mostrar solo útiles
+for i in insights_filtrados[:5]:
     st.info(i)
-
-
 # =========================
 # CONCLUSIÓN
 # =========================
