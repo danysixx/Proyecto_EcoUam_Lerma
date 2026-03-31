@@ -15,7 +15,7 @@ try:
 except Exception:
     # 💻 Local
     from config import ODK_URL, PROJECT_ID, FORM_ID, USERNAME, PASSWORD
-    
+
 st.set_page_config(page_title="Dashboard Encuestas", layout="wide")
 
 import plotly.express as px
@@ -64,6 +64,71 @@ df = df.rename(columns=COLUMN_MAPPING)
 if df.empty:
     st.warning("Sin datos disponibles")
     st.stop()
+
+
+# Mapping
+df = df.rename(columns=COLUMN_MAPPING)
+
+# =========================
+# 🔥 EXCLUSIÓN DE COLUMNAS
+# =========================
+
+EXCLUDE_COLUMNS = [
+
+    # TEXTOS ABIERTOS (_just)
+    "Explica qué es GIRS",
+    "Explica qué son los lixiviados",
+    "Acciones para reducir microplásticos",
+    "Influencia de la basura en inundaciones",
+    "Tipo de participación",
+    "Descripción de tiraderos",
+    "Explicación del impacto en salud",
+    "Explicación del impuesto",
+    "Explicación de brigadas",
+    "Opinión del servicio",
+    "Explicación de inundaciones",
+    "Explicación de acciones",
+    "Descripción de problemas",
+    "Destino de la basura",
+    "Explica qué son los RSU",
+    "Ejemplo de reciclaje",
+    "Descripción de botes",
+    "Cómo separan basura",
+    "Dónde viste basura",
+    "Explicación del impacto",
+
+    # DATOS QUE YA USAS ARRIBA
+    #"Edad",
+    "Edad (Primaria)",
+    "Edad (Secundaria)",
+    "Edad (Hogar)",
+    "Edad (Público)",
+
+    #"Sexo",
+    "Sexo (Primaria)",
+    "Sexo (Secundaria)",
+
+    #Ubicacion
+    "Ubicacion",
+    "Ubicacion_",
+
+    #Carrera
+    "Carrera",
+    
+]
+
+COLUMNAS_PROTEGIDAS = ["Sector"]
+
+# eliminar columnas vacías
+df = df.dropna(axis=1, how="all")
+
+# aplicar filtro
+columnas_validas = [
+    col for col in df.columns
+    if col not in EXCLUDE_COLUMNS or col in COLUMNAS_PROTEGIDAS
+]
+
+df = df[columnas_validas]
 
 
 # =========================
