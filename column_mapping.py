@@ -122,7 +122,67 @@ COLUMN_MAPPING = {
     # UBICACIÓN
     # =========================
     "grp_evidencia-ubicacion-coordinates":"Ubicacion",
-    "grp_evidencia-ubicacion-properties-accuracy":"Ubicacion_"
+    "grp_evidencia-ubicacion-properties-accuracy":"Ubicacion_",
+
+
+
+
+
+    # =========================
+    # PERCEPCIÓN AMBIENTAL
+    # =========================
+
+    "folio": "Folio",
+
+    # UBICACIÓN
+    "ubicacion_encuesta-coordinates": "Ubicacion",
+    "ubicacion_encuesta-properties-accuracy": "Precision GPS",
+
+    # SECCIÓN 1
+    "grp_s1-edad": "Edad",
+    "grp_s1-sexo": "Sexo",
+    "grp_s1-region": "Region",
+    "grp_s1-comunidad": "Comunidad",
+    "grp_s1-ocupacion": "Ocupacion",
+    "grp_s1-nivel_educativo": "Nivel educativo",
+
+    # SECCIÓN 2
+    "grp_s2-separa_hogar": "¿Separan residuos en el hogar?",
+    "grp_s2-como_separa": "¿Cómo separan residuos?",
+    "grp_s2-residuos_frecuentes": "Residuos más frecuentes",
+    "grp_s2-momento_saca": "Momento sacar basura",
+    "grp_s2-voluminosos": "Manejo residuos voluminosos",
+    "grp_s2-conoce_programas": "Conoce programas municipales",
+    "grp_s2-participado_campanas": "Participación en campañas",
+    "grp_s2-cuales_campanas": "Campañas participadas",
+
+    # SECCIÓN 3
+    "grp_s3-tiraderos_cerca": "¿Hay tiraderos clandestinos?",
+    "grp_s3-donde_acumulados": "Dónde residuos acumulados",
+    "grp_s3-tipo_acumulados": "Tipo residuos acumulados",
+    "grp_s3-quema_basura": "¿Es común la quema de basura?",
+    "grp_s3-problemas_basura": "Problemas asociados basura",
+    "grp_s3-presencia_animales": "Presencia de animales",
+    "grp_s3-tipo_animales": "Tipo de animales",
+
+    # SECCIÓN 4
+    "grp_s4-dias_camion": "Días camión recolector",
+    "grp_s4-horario_claro": "Horario claro y cumplido",
+    "grp_s4-califica_servicio": "Calificación servicio",
+    "grp_s4-problemas_recientes": "Problemas recientes servicio",
+    "grp_s4-a_quien_acude": "A quién acude por fallas",
+
+    # SECCIÓN 5
+    "grp_s5-comunidad_colabora": "¿La comunidad colabora?",
+    "grp_s5-como_colabora": "Cómo colabora comunidad",
+    "grp_s5-acuerdos_vecinales": "¿Existen acuerdos vecinales?",
+    "grp_s5-cuales_acuerdos": "Cuáles acuerdos vecinales",
+    "grp_s5-contenedor_comunitario": "Aceptación contenedor comunitario",
+    "grp_s5-vigilancia_contenedor": "Participación vigilancia contenedor",
+    "grp_s5-denuncias_ambientales": "¿Ha realizado denuncias ambientales?",
+    "grp_s5-tipo_denuncias": "Tipo denuncias ambientales",
+    "grp_s5-confia_servicio": "Confianza servicio municipal",
+    "grp_s5-mejorar_municipio": "Qué debe mejorar municipio",
 
 
 

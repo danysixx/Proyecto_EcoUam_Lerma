@@ -53,9 +53,9 @@ def flatten_json(data, parent_key=''):
     return dict(items)
 
 
-def obtener_submissions():
+def obtener_submissions(project_id, form_id):
 
-    url = f"{ODK_URL}/v1/projects/{PROJECT_ID}/forms/{FORM_ID}.svc/Submissions"
+    url = f"{ODK_URL}/v1/projects/{project_id}/forms/{form_id}.svc/Submissions"
 
     response = requests.get(
         url,

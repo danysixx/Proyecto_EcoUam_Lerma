@@ -5,7 +5,7 @@ import streamlit as st
 # =========================
 
 try:
-    # 🌐 Streamlit Cloud
+    #  Streamlit Cloud
     ODK_URL = st.secrets["ODK_URL"]
     PROJECT_ID = st.secrets["PROJECT_ID"]
     FORM_ID = st.secrets["FORM_ID"]
@@ -13,10 +13,14 @@ try:
     PASSWORD = st.secrets["PASSWORD"]
 
 except Exception:
-    # 💻 Local
+    #  Local
     from config import ODK_URL, PROJECT_ID, FORM_ID, USERNAME, PASSWORD
 
-st.set_page_config(page_title="Dashboard Encuestas", layout="wide")
+st.set_page_config(
+    page_title="Dashboard EcoUAM",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
 import plotly.express as px
 import pandas as pd
@@ -45,7 +49,7 @@ st.markdown("---")
 # DATA
 # =========================
 
-df = obtener_submissions()
+df = obtener_submissions(PROJECT_ID, FORM_ID)
 df = filtrar_columnas_relevantes(df)
 
 # Fecha última actualización
@@ -67,7 +71,7 @@ if df.empty:
 
 
 # =========================
-# 🔥 EXCLUSIÓN DE COLUMNAS
+#  EXCLUSIÓN DE COLUMNAS
 # =========================
 
 EXCLUDE_COLUMNS = [
@@ -187,7 +191,7 @@ estado_api = "🟢 Conectado" if not df.empty else "🔴 Sin conexión"
 
 
 # =========================
-# 🔥 RENDER KPIs EN 2 FILAS
+#  RENDER KPIs EN 2 FILAS
 # =========================
 
 # 🔹 FILA 1
@@ -234,7 +238,7 @@ def limpiar_serie(serie):
 
 
 # =========================
-# FUNCIÓN GRÁFICAS (AQUÍ ESTÁ EL CAMBIO CLAVE 🔥)
+# FUNCIÓN GRÁFICAS 
 # =========================
 
 def graficar_por_sector(df_seccion, keyword, titulo):
@@ -279,7 +283,7 @@ def graficar_por_sector(df_seccion, keyword, titulo):
         if len(conteo) > 10:
             continue
 
-        # 🔥 AQUÍ USAS LOS LABELS
+        # USO DE LABELS
         titulo_grafica = COLUMN_LABELS.get(col, col)
 
         if len(conteo) <= 3:
@@ -311,7 +315,7 @@ def graficar_por_sector(df_seccion, keyword, titulo):
 # GENERAL (SIN TABS)
 # =========================
 
-st.markdown("## 📊 Análisis general")
+st.markdown("##  Análisis general")
 #st.markdown("### Distribución general")
 
 col1, col2, col3 = st.columns(3)
@@ -392,7 +396,7 @@ st.subheader("Principales hallazgos")
 
 
 # =========================
-# 🔥 DATA LIMPIA PARA IA
+#  DATA LIMPIA PARA IA
 # =========================
 
 df_insights = df.copy()
@@ -420,11 +424,11 @@ df_insights = df_insights.loc[:, ~(df_insights == "Sin dato").all()]
 # eliminar columnas con una sola categoría
 df_insights = df_insights.loc[:, df_insights.nunique() > 1]
 
-# 🔥 ahora sí IA limpia
+# ahora sí IA limpia
 insights = generar_insights(df_insights)
 
 # =========================
-# 🔥 FILTRO DE INSIGHTS (AQUÍ VA EL CAMBIO)
+#  FILTRO DE INSIGHTS 
 # =========================
 
 INSIGHTS_NO_DESEADOS = [
