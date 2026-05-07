@@ -41,7 +41,13 @@ st.markdown("---")
 # =========================
 # DATA
 # =========================
+# =========================
+# FORMULARIO EDUCACIÓN AMBIENTAL
+# =========================
 
+PROJECT_ID = "3"
+
+FORM_ID = "Educacio%CC%81n%20ambiental%203"
 df = obtener_submissions(PROJECT_ID, FORM_ID)
 df = filtrar_columnas_relevantes(df)
 

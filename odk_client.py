@@ -21,8 +21,19 @@ try:
     PASSWORD = st.secrets["PASSWORD"]
 
 except Exception:
+
     # 💻 Local
-    from config import ODK_URL, PROJECT_ID, FORM_ID, USERNAME, PASSWORD
+    from config import (
+        ODK_URL,
+        PROJECT_ID,
+        FORM_ID,
+        USERNAME,
+        PASSWORD
+    )
+
+# =========================
+# FLATTEN JSON
+# =========================
 
 def flatten_json(data, parent_key=''):
     """
@@ -44,7 +55,10 @@ def flatten_json(data, parent_key=''):
 
         # Si el valor es otro diccionario → seguimos desanidando
         if isinstance(value, dict):
-            items.extend(flatten_json(value, new_key).items())
+
+            items.extend(
+                flatten_json(value, new_key).items()
+            )
 
         else:
             # Si no es diccionario → guardamos el valor
@@ -52,58 +66,112 @@ def flatten_json(data, parent_key=''):
 
     return dict(items)
 
+# =========================
+# OBTENER SUBMISSIONS
+# =========================
 
 def obtener_submissions(project_id, form_id):
 
-    url = f"{ODK_URL}/v1/projects/{project_id}/forms/{form_id}.svc/Submissions"
+    url = (
+        f"{ODK_URL}/v1/projects/"
+        f"{project_id}/forms/"
+        f"{form_id}.svc/Submissions"
+    )
 
     response = requests.get(
         url,
-        auth=HTTPBasicAuth(USERNAME, PASSWORD),
 
-        #IMPORTANTE: agregamos User-Agent para evitar bloqueos de Cloudflare
+        auth=HTTPBasicAuth(
+            USERNAME,
+            PASSWORD
+        ),
+
+        # IMPORTANTE:
+        # agregamos User-Agent
+        # para evitar bloqueos Cloudflare
         headers={
             "Accept": "application/json",
             "User-Agent": "Mozilla/5.0"
         }
     )
 
-    # 🔍 DEBUG: mostramos status y respuesta cruda
+    # =========================
+    # DEBUG
+    # =========================
+
     print("STATUS:", response.status_code)
-    print("RESPUESTA RAW:", response.text[:500])  # solo primeros 500 caracteres
 
+    print(
+        "RESPUESTA RAW:",
+        response.text[:500]
+    )
 
-    # VALIDAMOS SI LA RESPUESTA ES EXITOSA
+    # =========================
+    # VALIDACIÓN RESPONSE
+    # =========================
+
     if response.status_code != 200:
-        print("ERROR: la API no respondió correctamente")
+
+        print(
+            "ERROR: la API no respondió correctamente"
+        )
+
         return pd.DataFrame()
 
+    # =========================
+    # JSON
+    # =========================
 
-    # Intentamos convertir a JSON
     try:
         data = response.json()
+
     except Exception as e:
-        print("ERROR al convertir a JSON:", e)
+
+        print(
+            "ERROR al convertir JSON:",
+            e
+        )
+
         return pd.DataFrame()
 
+    # =========================
+    # VALIDACIÓN VALUE
+    # =========================
 
-    # VALIDAMOS QUE EXISTA "value"
     if "value" not in data:
-        print("ERROR: la respuesta no contiene 'value'")
-        print("Respuesta completa:", data)
-        return pd.DataFrame()
 
+        print(
+            "ERROR: respuesta sin 'value'"
+        )
+
+        print(data)
+
+        return pd.DataFrame()
 
     registros = data["value"]
 
-    # APLICAMOS EL FLATTEN
+    # =========================
+    # FLATTEN
+    # =========================
+
     registros_flat = []
 
     for registro in registros:
-        registro_plano = flatten_json(registro)
-        registros_flat.append(registro_plano)
 
-    # Convertimos a DataFrame
-    df = pd.DataFrame(registros_flat)
+        registro_plano = flatten_json(
+            registro
+        )
+
+        registros_flat.append(
+            registro_plano
+        )
+
+    # =========================
+    # DATAFRAME
+    # =========================
+
+    df = pd.DataFrame(
+        registros_flat
+    )
 
     return df
