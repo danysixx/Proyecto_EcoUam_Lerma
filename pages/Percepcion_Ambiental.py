@@ -54,41 +54,43 @@ st.markdown("""
 
 /* TEXTO GENERAL */
 html, body, [class*="css"] {
-    font-size: 18px !important;
+    font-size: 16px !important;
 }
 
 /* KPI */
 div[data-testid="metric-container"] {
     background-color: #f8f9fa;
-    border: 2px solid #e6e6e6;
-    padding: 25px;
-    border-radius: 16px;
+    border: 1px solid #e6e6e6;
+    padding: 18px;
+    border-radius: 14px;
     text-align: center;
 }
 
+/* TITULO KPI */
 div[data-testid="metric-container"] label {
-    font-size: 22px !important;
-    font-weight: bold !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
 }
 
+/* NUMERO KPI */
 [data-testid="stMetricValue"] {
-    font-size: 55px !important;
+    font-size: 34px !important;
     font-weight: bold !important;
     color: #1565C0 !important;
 }
 
 /* TITULOS */
 h1 {
-    font-size: 48px !important;
+    font-size: 38px !important;
 }
 
 h2 {
-    font-size: 36px !important;
-    margin-top: 20px !important;
+    font-size: 28px !important;
+    margin-top: 10px !important;
 }
 
 h3 {
-    font-size: 28px !important;
+    font-size: 22px !important;
 }
 
 </style>
@@ -206,68 +208,110 @@ if df.empty:
     st.warning("Sin datos disponibles")
     st.stop()
 
+confianza = round(
+    pd.to_numeric(
+        df["Confianza servicio municipal"],
+        errors="coerce"
+    ).mean(),
+    1
+)
+
+# =========================
+# KPIs PRINCIPALES
+# =========================
+
+# Fecha última actualización
+ultima_actualizacion = "N/A"
+
+if "__system-submissionDate" in df.columns:
+
+    try:
+        fecha = pd.to_datetime(
+            df["__system-submissionDate"]
+        ).max()
+
+        ultima_actualizacion = fecha.strftime(
+            "%Y-%m-%d %H:%M"
+        )
+
+    except:
+        ultima_actualizacion = "N/A"
+
+# Estado API
+estado_api = (
+    "🟢 Conectado"
+    if not df.empty
+    else "🔴 Sin conexión"
+)
+
+# Edad promedio
+edad_prom = round(
+    pd.to_numeric(
+        df["Edad"],
+        errors="coerce"
+    ).mean(),
+    0
+)
+
+# KPI separación residuos
+separan = (
+    df["¿Separan residuos en el hogar?"]
+    .astype(str)
+    .str.lower()
+    .str.contains("si|sí")
+    .mean()
+)
+
+separan = int(separan * 100)
+
 # =========================
 # KPIs
 # =========================
 
-def calcular_porcentaje_si(df, columna):
+# FILA 1
+col1, col2, col3 = st.columns(3)
 
-    if columna not in df.columns:
-        return 0
+with col1:
+    st.metric(
+        "Total encuestas",
+        len(df)
+    )
 
-    serie = df[columna].astype(str)
+with col2:
+    st.metric(
+        "Edad promedio",
+        int(edad_prom)
+    )
 
-    serie = serie[
-        ~serie.isin(["nan", "None", "", "Sin dato"])
-    ]
+with col3:
+    st.metric(
+        "Separan residuos",
+        f"{separan}%"
+    )
 
-    if len(serie) == 0:
-        return 0
+# ESPACIO
+st.markdown("<br>", unsafe_allow_html=True)
 
-    si = serie.str.lower().str.contains("si|sí").sum()
+# FILA 2
+col4, col5, col6 = st.columns(3)
 
-    return int((si / len(serie)) * 100)
+with col4:
+    st.metric(
+        "Estado API",
+        estado_api
+    )
 
-edad_promedio = pd.to_numeric(
-    df["Edad"],
-    errors="coerce"
-).mean()
+with col5:
+    st.metric(
+        "Última actualización",
+        ultima_actualizacion
+    )
 
-separacion = calcular_porcentaje_si(
-    df,
-    "¿Separan residuos en el hogar?"
-)
-
-confianza = pd.to_numeric(
-    df["Confianza servicio municipal"],
-    errors="coerce"
-).mean()
-
-# =========================
-# KPIs RENDER
-# =========================
-
-col1, col2, col3, col4 = st.columns(4)
-
-col1.metric(
-    "Total encuestas",
-    len(df)
-)
-
-col2.metric(
-    "Edad promedio",
-    int(edad_promedio)
-)
-
-col3.metric(
-    "Separan residuos",
-    f"{separacion}%"
-)
-
-col4.metric(
-    "Confianza servicio",
-    f"{round(confianza,1)} / 5"
-)
+with col6:
+    st.metric(
+        "Confianza servicio",
+        f"{round(confianza,1)} ⭐"
+    )
 
 st.markdown("---")
 
@@ -304,7 +348,12 @@ with col1:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "scrollZoom": False,
+        "staticPlot": False
+        }
     )
 
 # REGIÓN
@@ -338,7 +387,12 @@ with col2:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "scrollZoom": False,
+        "staticPlot": False
+        }       
     )
 
 # NIVEL EDUCATIVO
@@ -366,7 +420,12 @@ with col3:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "scrollZoom": False,
+        "staticPlot": False
+        }
     )
 
 st.markdown("---")
@@ -410,7 +469,12 @@ with col1:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "scrollZoom": False,
+        "staticPlot": False
+        }
     )
 
 # RESIDUOS
@@ -464,7 +528,12 @@ with col2:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "scrollZoom": False,
+        "staticPlot": False
+        }
     )
 
 st.markdown("---")
@@ -509,7 +578,13 @@ with col1:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "scrollZoom": False,
+        "staticPlot": False
+         }   
+        
     )
 
 # QUEMA
@@ -544,7 +619,12 @@ with col2:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "scrollZoom": False,
+        "staticPlot": False
+         }   
     )
 
 st.markdown("---")
@@ -606,7 +686,12 @@ with col1:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "scrollZoom": False,
+        "staticPlot": False
+         }   
     )
 
 # CONFIANZA
@@ -670,7 +755,12 @@ with col2:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "scrollZoom": False,
+        "staticPlot": False
+         }   
     )
 
 st.markdown("---")
@@ -683,11 +773,25 @@ st.markdown("## Problemas asociados a la basura")
 
 problemas = []
 
+PROBLEMAS_LABELS = {
+    "plagas": "Plagas",
+    "olores": "Olores",
+    "contaminacion": "Contaminación",
+    "inundaciones": "Inundaciones",
+    "enfermedades": "Enfermedades",
+    "otro": "Otro"
+}
+
 for fila in df[
     "Problemas asociados basura"
 ].dropna():
 
     partes = str(fila).replace(",", " ").split()
+
+    partes = [
+    PROBLEMAS_LABELS.get(p, p.capitalize())
+    for p in partes
+    ]
 
     problemas.extend(partes)
 
@@ -727,7 +831,13 @@ fig_problemas.update_traces(
 
 st.plotly_chart(
     fig_problemas,
-    use_container_width=True
+    use_container_width=True,
+    config={
+    "displayModeBar": False,
+    "scrollZoom": False,
+    "staticPlot": False,
+
+    }
 )
 
 # =========================
@@ -756,13 +866,3 @@ st.map(
     zoom=11
 )
 
-# =========================
-# DATOS
-# =========================
-
-with st.expander("Ver datos completos"):
-
-    st.dataframe(
-        df,
-        use_container_width=True
-    )

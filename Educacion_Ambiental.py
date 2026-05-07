@@ -6,6 +6,76 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# =========================
+# PALETA GLOBAL
+# =========================
+
+COLOR_PRIMARIO = "#1565C0"
+COLOR_SECUNDARIO = "#64B5F6"
+COLOR_EXITO = "#26A69A"
+COLOR_ALERTA = "#FFA726"
+COLOR_PELIGRO = "#EF5350"
+
+PALETA = [
+    COLOR_PRIMARIO,
+    COLOR_SECUNDARIO,
+    COLOR_EXITO,
+    COLOR_ALERTA,
+    COLOR_PELIGRO
+]
+
+# =========================
+# CSS
+# =========================
+
+st.markdown("""
+<style>
+
+/* TEXTO GENERAL */
+html, body, [class*="css"] {
+    font-size: 16px !important;
+}
+
+/* KPI */
+div[data-testid="metric-container"] {
+    background-color: #f8f9fa;
+    border: 1px solid #e6e6e6;
+    padding: 18px;
+    border-radius: 14px;
+    text-align: center;
+}
+
+/* TITULO KPI */
+div[data-testid="metric-container"] label {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+}
+
+/* NUMERO KPI */
+[data-testid="stMetricValue"] {
+    font-size: 34px !important;
+    font-weight: bold !important;
+    color: #1565C0 !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.1 !important;
+}
+/* TITULOS */
+h1 {
+    font-size: 38px !important;
+}
+
+h2 {
+    font-size: 28px !important;
+}
+
+h3 {
+    font-size: 22px !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 import plotly.express as px
 import pandas as pd
 
@@ -64,9 +134,108 @@ if "start" in df.columns:
 # Mapping
 df = df.rename(columns=COLUMN_MAPPING)
 
+# =========================
+# LIMPIEZA VISUAL
+# =========================
+
+SEXO = {
+    "masculino": "Masculino",
+    "femenino": "Femenino"
+}
+
+SECTOR = {
+    "primaria": "Primaria",
+    "secundaria": "Secundaria",
+    "hogar": "Hogar",
+    "publico": "Público",
+    "prepa": "Preparatoria",
+    "universidad": "Universidad"
+}
+
+if "Sexo" in df.columns:
+    df["Sexo"] = df["Sexo"].replace(SEXO)
+
+if "Sector" in df.columns:
+    df["Sector"] = df["Sector"].replace(SECTOR)
+
+REEMPLAZOS = {
+
+    # =========================
+    # SEXO
+    # =========================
+
+    "f": "Femenino",
+    "m": "Masculino",
+
+    # =========================
+    # NIVEL EDUCATIVO
+    # =========================
+
+    "uni": "Universidad",
+    "prepa": "Preparatoria",
+
+    # =========================
+    # RESPUESTAS BINARIAS
+    # =========================
+
+    "si": "Sí",
+    "sí": "Sí",
+    "no": "No",
+    "talvez": "Tal vez",
+
+    # =========================
+    # RESIDUOS
+    # =========================
+
+    "rsu": "RSU",
+    "raee": "RAEE",
+    "rp": "RP",
+
+    "rsu raee": "RSU + RAEE",
+    "rsu rp": "RSU + RP",
+    "raee rp": "RAEE + RP",
+    "rsu raee rp": "RSU + RAEE + RP",
+
+    # =========================
+    # PROBLEMAS AMBIENTALES
+    # =========================
+
+    "corrupcion": "Corrupción",
+    "educacion": "Educación",
+    "quema": "Quema",
+    "rio": "Río",
+    "tiradero": "Tiradero",
+    "contaminacion": "Contaminación",
+
+    # =========================
+    # RESIDUOS ELECTRÓNICOS
+    # =========================
+
+    "guardo": "Guardo",
+    "acopio": "Centro de acopio",
+    "basura": "Basura común",
+
+    # =========================
+    # ACCIONES ILEGALES
+    # =========================
+
+    "quema rio cascajo": "Quema + Río + Cascajo",
+
+    # =========================
+    # OTROS
+    # =========================
+
+    "depende": "Depende"
+}
+
+# Aplicar reemplazos visuales
+df = df.replace(REEMPLAZOS)
+
 if df.empty:
     st.warning("Sin datos disponibles")
     st.stop()
+
+
 
 
 # =========================
@@ -196,24 +365,64 @@ estado_api = "🟢 Conectado" if not df.empty else "🔴 Sin conexión"
 # 🔹 FILA 1
 col1, col2, col3 = st.columns(3)
 
-col1.metric("Total encuestas", len(df))
-col2.metric("Edad promedio", edad_prom)
-col3.metric("Estado API", estado_api)
+col1.metric(
+    "Total encuestas",
+    len(df)
+)
+
+col2.metric(
+    "Edad promedio",
+    edad_prom
+)
+
+col3.metric(
+    "Estado API",
+    estado_api
+)
 
 # 🔹 FILA 2
 col4, col5, col6 = st.columns(3)
 
-col4.metric("Última actualización", ultima_actualizacion)
+col4.metric(
+    "Última actualización",
+    ultima_actualizacion
+)
+
+# =========================
+# KPI 1
+# =========================
 
 if kpi_1 is not None:
-    col5.metric(label_1, f"{kpi_1}%")
+
+    col5.metric(
+        label_1[:30],
+        f"{kpi_1}%"
+    )
+
 else:
-    col5.metric("Indicador 1", "N/A")
+
+    col5.metric(
+        "Indicador 1",
+        "N/A"
+    )
+
+# =========================
+# KPI 2
+# =========================
 
 if kpi_2 is not None:
-    col6.metric(label_2, f"{kpi_2}%")
+
+    col6.metric(
+        label_2.split(" sobre ")[0],
+        f"{kpi_2}%"
+    )
+
 else:
-    col6.metric("Indicador 2", "N/A")
+
+    col6.metric(
+        "Indicador 2",
+        "N/A"
+    )
 
 st.markdown("---")
 
@@ -276,33 +485,81 @@ def graficar_por_sector(df_seccion, keyword, titulo):
         try:
             conteo = serie.value_counts().reset_index()
             conteo.columns = [col, "conteo"]
+
         except:
             continue
 
         if len(conteo) > 10:
             continue
 
+        # =========================
         # USO DE LABELS
+        # =========================
+
         titulo_grafica = COLUMN_LABELS.get(col, col)
 
+        # =========================
+        # PIE CHART
+        # =========================
+
         if len(conteo) <= 3:
+
             fig = px.pie(
                 conteo,
                 names=col,
                 values="conteo",
                 title=titulo_grafica,
-                hole=0.5
+                hole=0.5,
+                color_discrete_sequence=PALETA
             )
+
+            fig.update_layout(
+                template="plotly_white"
+            )
+
+        # =========================
+        # BAR CHART
+        # =========================
+
         else:
+
             fig = px.bar(
                 conteo,
                 x=col,
                 y="conteo",
-                title=titulo_grafica
+                color=col,
+                color_discrete_sequence=PALETA,
+                title=titulo_grafica,
+                text="conteo",
+                template="plotly_white"
             )
 
+            fig.update_layout(
+                showlegend=False,
+                height=400
+            )
+
+            fig.update_traces(
+                textposition="outside",
+                cliponaxis=False
+            )
+
+        # =========================
+        # RENDER
+        # =========================
+
         with cols[i % 3]:
-            st.plotly_chart(fig, use_container_width=True, key=f"{titulo}_{col}_{i}")
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True,
+                key=f"{titulo}_{col}_{i}",
+                config={
+                    "displayModeBar": False,
+                    "scrollZoom": False,
+                    "staticPlot": False
+                }
+            )
 
         i += 1
 
@@ -314,43 +571,172 @@ def graficar_por_sector(df_seccion, keyword, titulo):
 # GENERAL (SIN TABS)
 # =========================
 
-st.markdown("##  Análisis general")
-#st.markdown("### Distribución general")
+st.markdown("## Análisis general")
+# st.markdown("### Distribución general")
 
 col1, col2, col3 = st.columns(3)
 
+# =========================
+# SECTOR
+# =========================
+
 with col1:
-        sector = df["Sector"].dropna()
-        if not sector.empty:
-            conteo = sector.value_counts().reset_index()
-            conteo.columns = ["Sector", "conteo"]
-            fig = px.pie(conteo, names="Sector", values="conteo", title="Sector", hole=0.5)
-            st.plotly_chart(fig, use_container_width=True, key="sector")
+
+    sector = df["Sector"].dropna()
+
+    if not sector.empty:
+
+        conteo = sector.value_counts().reset_index()
+        conteo.columns = ["Sector", "conteo"]
+
+        fig = px.pie(
+            conteo,
+            names="Sector",
+            values="conteo",
+            title="Sector",
+            hole=0.5,
+            color_discrete_sequence=PALETA
+        )
+
+        fig.update_layout(
+            template="plotly_white"
+        )
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            key="sector",
+            config={
+                "displayModeBar": False,
+                "scrollZoom": False,
+                "staticPlot": False
+            }
+        )
+
+# =========================
+# EDAD
+# =========================
 
 with col2:
-        if cols_edad:
-            edad = df[cols_edad].bfill(axis=1).iloc[:, 0]
-            edad = pd.to_numeric(edad, errors="coerce").dropna()
-            if not edad.empty:
-                conteo = edad.value_counts().sort_index().reset_index()
-                conteo.columns = ["Edad", "conteo"]
-                fig = px.pie(conteo, names="Edad", values="conteo", title="Edad", hole=0.5)
-                st.plotly_chart(fig, use_container_width=True, key="edad")
+
+    if cols_edad:
+
+        edad = df[cols_edad].bfill(axis=1).iloc[:, 0]
+
+        edad = pd.to_numeric(
+            edad,
+            errors="coerce"
+        ).dropna()
+
+        if not edad.empty:
+
+            conteo = (
+                edad.value_counts()
+                .sort_index()
+                .reset_index()
+            )
+
+            conteo.columns = [
+                "Edad",
+                "conteo"
+            ]
+
+            fig = px.pie(
+                conteo,
+                names="Edad",
+                values="conteo",
+                title="Edad",
+                hole=0.5,
+                color_discrete_sequence=PALETA
+            )
+
+            fig.update_layout(
+                template="plotly_white"
+            )
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True,
+                key="edad",
+                config={
+                    "displayModeBar": False,
+                    "scrollZoom": False,
+                    "staticPlot": False
+                }
+            )
+
+# =========================
+# SEXO
+# =========================
 
 with col3:
-        cols_sexo = [c for c in df.columns if "Sexo" in c]
-        if cols_sexo:
-            sexo = df[cols_sexo].bfill(axis=1).iloc[:, 0]
-            sexo = sexo.astype(str)
-            sexo = sexo[~sexo.isin(["None", "nan", ""])]
-            if not sexo.empty:
-                conteo = sexo.value_counts().reset_index()
-                conteo.columns = ["Sexo", "conteo"]
-                fig = px.pie(conteo, names="Sexo", values="conteo", title="Sexo", hole=0.5)
-                st.plotly_chart(fig, use_container_width=True, key="sexo")
+
+    cols_sexo = [
+        c for c in df.columns
+        if "Sexo" in c
+    ]
+
+    if cols_sexo:
+
+        sexo = (
+            df[cols_sexo]
+            .bfill(axis=1)
+            .iloc[:, 0]
+        )
+
+        sexo = sexo.astype(str)
+
+        sexo = sexo[
+            ~sexo.isin([
+                "None",
+                "nan",
+                ""
+            ])
+        ]
+
+        if not sexo.empty:
+
+            conteo = (
+                sexo.value_counts()
+                .reset_index()
+            )
+
+            conteo.columns = [
+                "Sexo",
+                "conteo"
+            ]
+
+            fig = px.pie(
+                conteo,
+                names="Sexo",
+                values="conteo",
+                title="Sexo",
+                hole=0.5,
+                color_discrete_sequence=PALETA
+            )
+
+            fig.update_layout(
+                template="plotly_white"
+            )
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True,
+                key="sexo",
+                config={
+                    "displayModeBar": False,
+                    "scrollZoom": False,
+                    "staticPlot": False
+                }
+            )
 
 st.markdown("---")
-graficar_por_sector(df, "", "Resultados")
+
+graficar_por_sector(
+    df,
+    "",
+    "Resultados"
+)
 
 
 # =========================
@@ -363,7 +749,12 @@ df_primaria = df[df["Sector"].str.lower().str.strip() == "primaria"]
 df_secundaria = df[df["Sector"].str.lower().str.strip() == "secundaria"]
 df_prepa = df[df["Sector"].str.lower().str.contains("prepa")]
 df_hogar = df[df["Sector"].str.lower().str.strip() == "hogar"]
-df_publico = df[df["Sector"].str.lower().str.strip() == "publico"]
+df_publico = df[
+    df["Sector"]
+    .str.lower()
+    .str.strip()
+    == "público"
+]
 
 
 # =========================
@@ -458,6 +849,3 @@ El dashboard permite visualizar patrones clave para la toma de decisiones.
 """)
 
 st.markdown("---")
-st.subheader("Datos completos")
-
-st.dataframe(df, use_container_width=True)
