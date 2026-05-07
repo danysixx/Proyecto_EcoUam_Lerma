@@ -395,7 +395,7 @@ col4.metric(
 if kpi_1 is not None:
 
     col5.metric(
-        label_1[:30],
+        label_1,
         f"{kpi_1}%"
     )
 
@@ -413,7 +413,7 @@ else:
 if kpi_2 is not None:
 
     col6.metric(
-        label_2.split(" sobre ")[0],
+        label_2,
         f"{kpi_2}%"
     )
 
@@ -843,6 +843,7 @@ insights_filtrados = [
 ]
 
 # mostrar solo útiles
+
 for i in insights_filtrados[:5]:
     st.info(i)
 # =========================
