@@ -650,7 +650,7 @@ with col1:
 
     st.metric(
         "Calificación promedio",
-        f"{promedio_servicio} / 5"
+        f"{promedio_servicio} ⭐"
     )
 
     conteo = df[
@@ -707,7 +707,7 @@ with col2:
 
     st.metric(
         "Confianza promedio",
-        f"{promedio_confianza} / 5"
+        f"{promedio_confianza} ⭐"
     )
 
     conteo = df[
