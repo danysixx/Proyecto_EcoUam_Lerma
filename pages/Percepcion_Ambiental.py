@@ -93,6 +93,10 @@ h3 {
     font-size: 22px !important;
 }
 
+/* DESACTIVAR INTERACCIONES DEL MAPA EN MÓVIL */
+iframe {
+    pointer-events: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -352,7 +356,9 @@ with col1:
         config={
         "displayModeBar": False,
         "scrollZoom": False,
-        "staticPlot": False
+        "doubleClick": False,
+"showTips": False,
+"staticPlot": True
         }
     )
 
@@ -391,7 +397,9 @@ with col2:
         config={
         "displayModeBar": False,
         "scrollZoom": False,
-        "staticPlot": False
+        "doubleClick": False,
+"showTips": False,
+"staticPlot": True
         }       
     )
 
@@ -424,7 +432,9 @@ with col3:
         config={
         "displayModeBar": False,
         "scrollZoom": False,
-        "staticPlot": False
+        "doubleClick": False,
+"showTips": False,
+"staticPlot": True
         }
     )
 
@@ -473,7 +483,9 @@ with col1:
         config={
         "displayModeBar": False,
         "scrollZoom": False,
-        "staticPlot": False
+        "doubleClick": False,
+"showTips": False,
+"staticPlot": True
         }
     )
 
@@ -532,7 +544,9 @@ with col2:
         config={
         "displayModeBar": False,
         "scrollZoom": False,
-        "staticPlot": False
+        "doubleClick": False,
+"showTips": False,
+"staticPlot": True
         }
     )
 
@@ -582,7 +596,9 @@ with col1:
         config={
         "displayModeBar": False,
         "scrollZoom": False,
-        "staticPlot": False
+        "doubleClick": False,
+"showTips": False,
+"staticPlot": True
          }   
         
     )
@@ -623,7 +639,9 @@ with col2:
         config={
         "displayModeBar": False,
         "scrollZoom": False,
-        "staticPlot": False
+        "doubleClick": False,
+"showTips": False,
+"staticPlot": True
          }   
     )
 
@@ -690,7 +708,9 @@ with col1:
         config={
         "displayModeBar": False,
         "scrollZoom": False,
-        "staticPlot": False
+        "doubleClick": False,
+"showTips": False,
+"staticPlot": True
          }   
     )
 
@@ -759,7 +779,9 @@ with col2:
         config={
         "displayModeBar": False,
         "scrollZoom": False,
-        "staticPlot": False
+        "doubleClick": False,
+"showTips": False,
+"staticPlot": True
          }   
     )
 
@@ -835,7 +857,9 @@ st.plotly_chart(
     config={
     "displayModeBar": False,
     "scrollZoom": False,
-    "staticPlot": False,
+    "doubleClick": False,
+"showTips": False,
+"staticPlot": True,
 
     }
 )
@@ -863,6 +887,11 @@ df_mapa = df_mapa.dropna(
 
 st.map(
     df_mapa[["lat", "lon"]],
-    zoom=11
+    zoom=11,
+    use_container_width=True
+)
+
+st.caption(
+    "Mapa interactivo deshabilitado en móvil para mejorar navegación."
 )
 

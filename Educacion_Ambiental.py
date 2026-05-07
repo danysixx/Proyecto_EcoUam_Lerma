@@ -557,7 +557,9 @@ def graficar_por_sector(df_seccion, keyword, titulo):
                 config={
                     "displayModeBar": False,
                     "scrollZoom": False,
-                    "staticPlot": False
+                    "doubleClick": False,
+"showTips": False,
+"staticPlot": True
                 }
             )
 
@@ -609,7 +611,9 @@ with col1:
             config={
                 "displayModeBar": False,
                 "scrollZoom": False,
-                "staticPlot": False
+                "doubleClick": False,
+"showTips": False,
+"staticPlot": True
             }
         )
 
@@ -661,7 +665,9 @@ with col2:
                 config={
                     "displayModeBar": False,
                     "scrollZoom": False,
-                    "staticPlot": False
+                    "doubleClick": False,
+"showTips": False,
+"staticPlot": True
                 }
             )
 
@@ -726,7 +732,9 @@ with col3:
                 config={
                     "displayModeBar": False,
                     "scrollZoom": False,
-                    "staticPlot": False
+                    "doubleClick": False,
+"showTips": False,
+"staticPlot": True
                 }
             )
 
