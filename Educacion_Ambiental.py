@@ -1,21 +1,5 @@
 import streamlit as st
 
-# =========================
-# CONFIG HÍBRIDA (LOCAL + CLOUD)
-# =========================
-
-try:
-    #  Streamlit Cloud
-    ODK_URL = st.secrets["ODK_URL"]
-    PROJECT_ID = st.secrets["PROJECT_ID"]
-    FORM_ID = st.secrets["FORM_ID"]
-    USERNAME = st.secrets["USERNAME"]
-    PASSWORD = st.secrets["PASSWORD"]
-
-except Exception:
-    #  Local
-    from config import ODK_URL, PROJECT_ID, FORM_ID, USERNAME, PASSWORD
-
 st.set_page_config(
     page_title="Dashboard EcoUAM",
     layout="wide",
@@ -24,9 +8,18 @@ st.set_page_config(
 
 import plotly.express as px
 import pandas as pd
+
 from odk_client import obtener_submissions
-from ai_analysis import generar_insights, filtrar_columnas_relevantes
-from column_mapping import COLUMN_MAPPING, COLUMN_LABELS
+
+from ai_analysis import (
+    generar_insights,
+    filtrar_columnas_relevantes
+)
+
+from column_mapping import (
+    COLUMN_MAPPING,
+    COLUMN_LABELS
+)
 
 
 # =========================
