@@ -7,8 +7,7 @@
 ###  Enlaces Directos / Quick Links
 
 - 📢 **[Presentación en Canva](https://canva.link/r80oelsfjqwm0ng)**
-- 🎈 **[Demo en Streamlit]([https://tu-url-de-streamlit]([https://dashboard-ecouam-lerma.streamlit.app/](https://dashboard-ecouam-lerma.streamlit.app/Percepcion_Ambiental)))**
-
+🎈 **[Demo](https://dashboard-ecouam-lerma.streamlit.app/Percepcion_Ambiental)**
 ---
 
 ###  Sobre el Proyecto
