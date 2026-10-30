@@ -7,8 +7,7 @@
 ###  Enlaces Directos / Quick Links
 
 - 📢 **[Presentación en Canva](https://canva.link/r80oelsfjqwm0ng)**
-- ☁️ **[Dashboard en Huawei Cloud]()**
-- 🎈 **[Demo en Streamlit]([https://tu-url-de-streamlit](https://dashboard-ecouam-lerma.streamlit.app/))**
+- 🎈 **[Demo en Streamlit]([https://tu-url-de-streamlit]([https://dashboard-ecouam-lerma.streamlit.app/](https://dashboard-ecouam-lerma.streamlit.app/Percepcion_Ambiental)))**
 
 ---
 
